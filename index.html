@@ -21,19 +21,26 @@
     header h1 { font-size: 18px; font-weight: 700; }
     header .month { color: var(--text2); font-size: 13px; margin-top: 2px; }
     .container { max-width: 480px; margin: 0 auto; padding: 16px; }
+
     .summary-card { background: linear-gradient(135deg, #1e40af, #312e81); border-radius: 16px; padding: 20px; margin-bottom: 20px; }
     .summary-card .label { font-size: 12px; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 1px; }
-    .summary-card .amount { font-size: 36px; font-weight: 700; margin: 4px 0; }
-    .summary-card .sub { font-size: 13px; color: rgba(255,255,255,0.85); }
-    .progress-bar { background: rgba(255,255,255,0.2); border-radius: 99px; height: 8px; margin-top: 12px; overflow: hidden; }
-    .progress-bar-fill { height: 100%; border-radius: 99px; background: white; transition: width 0.3s; }
-    .section-title { font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.8px; margin: 20px 0 10px; }
+    .remaining-amount { font-size: 42px; font-weight: 700; margin: 6px 0 2px; line-height: 1; }
+    .remaining-amount.danger { color: var(--danger); }
+    .summary-card .sub { font-size: 13px; color: rgba(255,255,255,0.75); }
+    .summary-meta { display: flex; justify-content: space-between; margin-top: 14px; }
+    .summary-meta-item .sm-label { font-size: 11px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.6px; }
+    .summary-meta-item .sm-val { font-size: 16px; font-weight: 600; margin-top: 2px; }
+    .progress-bar { background: rgba(255,255,255,0.2); border-radius: 99px; height: 8px; margin-top: 14px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; border-radius: 99px; background: white; transition: width 0.4s; }
+    .progress-bar-fill.danger { background: var(--danger); }
+
+    .section-title { font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.8px; margin: 22px 0 10px; }
     .category-card { background: var(--surface); border-radius: 12px; padding: 14px 16px; margin-bottom: 8px; border: 1px solid var(--border); }
     .category-card.over { border-color: var(--danger); }
     .category-card.warning { border-color: var(--warning); }
-    .category-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 4px; }
+    .category-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; }
     .category-name { font-size: 15px; font-weight: 500; }
-    .category-amounts { font-size: 13px; color: var(--text2); }
+    .category-amounts { font-size: 13px; color: var(--text2); white-space: nowrap; }
     .tag-over { color: var(--danger); font-weight: 600; }
     .tag-ok { color: var(--success); }
     .tag-warning { color: var(--warning); }
@@ -41,18 +48,19 @@
     .cat-progress-fill { height: 100%; border-radius: 99px; background: var(--accent); transition: width 0.3s; }
     .cat-progress-fill.over { background: var(--danger); }
     .cat-progress-fill.warning { background: var(--warning); }
-    .fixed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .fixed-item { background: var(--surface); border-radius: 10px; padding: 12px; border: 1px solid var(--border); }
-    .fixed-item .fi-label { font-size: 12px; color: var(--text2); }
-    .fixed-item .fi-amount { font-size: 16px; font-weight: 600; margin-top: 2px; }
+
     .expense-item { background: var(--surface); border-radius: 10px; padding: 12px 14px; margin-bottom: 6px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
     .exp-cat { font-size: 13px; color: var(--accent); font-weight: 500; }
     .exp-note { font-size: 12px; color: var(--text2); margin-top: 1px; }
     .exp-who { font-size: 11px; color: var(--text2); margin-top: 2px; }
     .exp-amount { font-size: 16px; font-weight: 600; }
     .exp-date { font-size: 11px; color: var(--text2); text-align: right; margin-top: 2px; }
+
+    .alert-banner { background: rgba(248,113,113,0.12); border: 1px solid var(--danger); border-radius: 10px; padding: 10px 14px; font-size: 13px; color: var(--danger); margin-bottom: 8px; }
+
     .fab { position: fixed; bottom: 24px; right: 24px; width: 58px; height: 58px; border-radius: 50%; background: var(--accent); color: #0f172a; font-size: 30px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(56,189,248,0.4); z-index: 20; transition: transform 0.1s; }
     .fab:active { transform: scale(0.93); }
+
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 30; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
     .modal-overlay.open { opacity: 1; pointer-events: all; }
     .modal { background: var(--surface); border-radius: 20px 20px 0 0; padding: 24px 20px 44px; width: 100%; max-width: 480px; margin: 0 auto; transform: translateY(100%); transition: transform 0.25s; position: relative; }
@@ -68,7 +76,6 @@
     .who-btn.active { border-color: var(--accent); background: rgba(56,189,248,0.12); color: var(--accent); font-weight: 600; }
     .submit-btn { width: 100%; padding: 14px; border-radius: 12px; background: var(--accent); color: #0f172a; font-size: 16px; font-weight: 700; border: none; cursor: pointer; margin-top: 6px; }
     .submit-btn:active { opacity: 0.85; }
-    .alert-banner { background: rgba(248,113,113,0.12); border: 1px solid var(--danger); border-radius: 10px; padding: 10px 14px; font-size: 13px; color: var(--danger); margin-bottom: 8px; }
     .empty-state { text-align: center; padding: 24px; color: var(--text2); font-size: 14px; }
     .loading { text-align: center; padding: 48px; color: var(--text2); }
   </style>
@@ -96,20 +103,13 @@
     <div class="form-group">
       <label>Who's logging?</label>
       <div class="who-toggle">
-        <div class="who-btn active" id="whoHim" onclick="setWho('him')">Him</div>
-        <div class="who-btn" id="whoHer" onclick="setWho('her')">Her</div>
+        <div class="who-btn active" id="whoNeria" onclick="setWho('neria')">Neria</div>
+        <div class="who-btn" id="whoHaley" onclick="setWho('haley')">Haley</div>
       </div>
     </div>
     <div class="form-group">
       <label>Category</label>
-      <select id="categorySelect">
-        <option value="groceries">Groceries</option>
-        <option value="electricity">Electricity</option>
-        <option value="subscriptions">Subscriptions</option>
-        <option value="charity">Charity</option>
-        <option value="his_allowance">His Allowance</option>
-        <option value="her_allowance">Her Allowance</option>
-      </select>
+      <select id="categorySelect"></select>
     </div>
     <div class="form-group">
       <label>Amount ($)</label>
@@ -137,27 +137,49 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  const BUDGET_CATS = [
-    { id: 'groceries',     label: 'Groceries',     budget: 600  },
-    { id: 'electricity',   label: 'Electricity',   budget: 175  },
-    { id: 'subscriptions', label: 'Subscriptions', budget: 30   },
-    { id: 'charity',       label: 'Charity',       budget: 200  },
-    { id: 'his_allowance', label: 'His Allowance', budget: 1000 },
-    { id: 'her_allowance', label: 'Her Allowance', budget: 1000 },
+  const TOTAL_BUDGET = 10000;
+
+  const CATEGORIES = [
+    { id: 'haley_401k',    label: "Haley's Roth 401K",  budget: 2042, group: 'retirement' },
+    { id: 'roth_iras',     label: 'Both Roth IRAs',      budget: 1250, group: 'retirement' },
+    { id: 'rent',          label: 'Rent',                budget: 2200, group: 'fixed' },
+    { id: 'groceries',     label: 'Groceries',           budget: 600,  group: 'variable' },
+    { id: 'electricity',   label: 'Electricity',         budget: 175,  group: 'fixed' },
+    { id: 'car_insurance', label: 'Car Insurance',       budget: 167,  group: 'fixed' },
+    { id: 'internet',      label: 'Internet',            budget: 65,   group: 'fixed' },
+    { id: 'subscriptions', label: 'Subscriptions',       budget: 30,   group: 'variable' },
+    { id: 'charity',       label: 'Charity',             budget: 200,  group: 'variable' },
+    { id: 'neria_allow',   label: "Neria's Allowance",   budget: 1000, group: 'personal' },
+    { id: 'haley_allow',   label: "Haley's Allowance",   budget: 1000, group: 'personal' },
+    { id: 'brokerage',     label: 'Brokerage',           budget: 1000, group: 'savings' },
+    { id: 'vacation',      label: 'Vacation Fund',       budget: 271,  group: 'savings' },
   ];
 
-  const FIXED_CATS = [
-    { label: "Haley's Roth 401K", amount: 2042 },
-    { label: 'Both Roth IRAs',   amount: 1250 },
-    { label: 'Rent',             amount: 2200 },
-    { label: 'Car Insurance',    amount: 167  },
-    { label: 'Internet',         amount: 65   },
-    { label: 'Brokerage',        amount: 1000 },
-    { label: 'Vacation Fund',    amount: 271  },
+  const GROUPS = [
+    { id: 'retirement', label: 'Retirement' },
+    { id: 'fixed',      label: 'Fixed Expenses' },
+    { id: 'variable',   label: 'Variable Expenses' },
+    { id: 'personal',   label: 'Personal Spending' },
+    { id: 'savings',    label: 'Savings' },
   ];
 
-  const TRACKABLE_TOTAL = BUDGET_CATS.reduce((s, c) => s + c.budget, 0);
-  let selectedWho = 'him';
+  // Populate category dropdown
+  const sel = document.getElementById('categorySelect');
+  GROUPS.forEach(g => {
+    const cats = CATEGORIES.filter(c => c.group === g.id);
+    if (!cats.length) return;
+    const og = document.createElement('optgroup');
+    og.label = g.label;
+    cats.forEach(c => {
+      const o = document.createElement('option');
+      o.value = c.id;
+      o.textContent = c.label;
+      og.appendChild(o);
+    });
+    sel.appendChild(og);
+  });
+
+  let selectedWho = 'neria';
   let expenses = [];
 
   function getMonthKey() {
@@ -179,8 +201,8 @@
 
   function setWho(who) {
     selectedWho = who;
-    document.getElementById('whoHim').classList.toggle('active', who === 'him');
-    document.getElementById('whoHer').classList.toggle('active', who === 'her');
+    document.getElementById('whoNeria').classList.toggle('active', who === 'neria');
+    document.getElementById('whoHaley').classList.toggle('active', who === 'haley');
   }
 
   function openModal() {
@@ -219,21 +241,31 @@
 
   function render() {
     const spent = {};
-    BUDGET_CATS.forEach(c => spent[c.id] = 0);
+    CATEGORIES.forEach(c => spent[c.id] = 0);
     expenses.forEach(e => { if (spent[e.category] !== undefined) spent[e.category] += e.amount; });
 
     const totalSpent = Object.values(spent).reduce((a,b) => a+b, 0);
-    const remaining = TRACKABLE_TOTAL - totalSpent;
-    const isOver = totalSpent > TRACKABLE_TOTAL;
-    const pct = Math.min((totalSpent / TRACKABLE_TOTAL) * 100, 100);
-    const alerts = BUDGET_CATS.filter(c => spent[c.id] > c.budget);
+    const remaining = TOTAL_BUDGET - totalSpent;
+    const isOver = totalSpent > TOTAL_BUDGET;
+    const pct = Math.min((totalSpent / TOTAL_BUDGET) * 100, 100);
+    const alerts = CATEGORIES.filter(c => spent[c.id] > c.budget);
 
     let html = `
       <div class="summary-card">
-        <div class="label">Variable Spending — ${formatMonthLabel()}</div>
-        <div class="amount">$${totalSpent.toFixed(0)}<span style="font-size:18px;opacity:0.6"> / $${TRACKABLE_TOTAL.toLocaleString()}</span></div>
-        <div class="sub">${isOver ? '⚠️ $'+Math.abs(remaining).toFixed(0)+' over budget' : '$'+remaining.toFixed(0)+' remaining'}</div>
-        <div class="progress-bar"><div class="progress-bar-fill" style="width:${pct}%;${isOver?'background:var(--danger)':''}"></div></div>
+        <div class="label">Remaining This Month</div>
+        <div class="remaining-amount ${isOver ? 'danger' : ''}">$${Math.abs(remaining).toLocaleString('en-US', {minimumFractionDigits:0})}</div>
+        <div class="sub">${isOver ? '⚠️ Over budget by $'+Math.abs(remaining).toFixed(0) : 'of $10,000 left to allocate'}</div>
+        <div class="summary-meta">
+          <div class="summary-meta-item">
+            <div class="sm-label">Spent</div>
+            <div class="sm-val">$${totalSpent.toLocaleString('en-US', {minimumFractionDigits:0})}</div>
+          </div>
+          <div class="summary-meta-item" style="text-align:right">
+            <div class="sm-label">Budget</div>
+            <div class="sm-val">$10,000</div>
+          </div>
+        </div>
+        <div class="progress-bar"><div class="progress-bar-fill ${isOver?'danger':''}" style="width:${pct}%"></div></div>
       </div>
     `;
 
@@ -241,41 +273,38 @@
       html += `<div class="alert-banner">⚠️ ${c.label} is $${(spent[c.id]-c.budget).toFixed(0)} over budget</div>`;
     });
 
-    html += `<div class="section-title">Variable Categories</div>`;
-    BUDGET_CATS.forEach(c => {
-      const s = spent[c.id];
-      const p = Math.min((s / c.budget) * 100, 100);
-      const over = s > c.budget;
-      const warn = !over && p >= 80;
-      const rem = c.budget - s;
-      html += `
-        <div class="category-card ${over?'over':warn?'warning':''}">
-          <div class="category-top">
-            <div class="category-name">${c.label}</div>
-            <div class="category-amounts">$${s.toFixed(0)} / $${c.budget} &nbsp;<span class="${over?'tag-over':warn?'tag-warning':'tag-ok'}">${over?'▲ $'+Math.abs(rem).toFixed(0)+' over':'$'+rem.toFixed(0)+' left'}</span></div>
-          </div>
-          <div class="cat-progress"><div class="cat-progress-fill ${over?'over':warn?'warning':''}" style="width:${p}%"></div></div>
-        </div>`;
+    GROUPS.forEach(g => {
+      const cats = CATEGORIES.filter(c => c.group === g.id);
+      html += `<div class="section-title">${g.label}</div>`;
+      cats.forEach(c => {
+        const s = spent[c.id];
+        const p = Math.min((s / c.budget) * 100, 100);
+        const over = s > c.budget;
+        const warn = !over && p >= 80;
+        const rem = c.budget - s;
+        html += `
+          <div class="category-card ${over?'over':warn?'warning':''}">
+            <div class="category-top">
+              <div class="category-name">${c.label}</div>
+              <div class="category-amounts">$${s.toFixed(0)} / $${c.budget.toLocaleString()} &nbsp;<span class="${over?'tag-over':warn?'tag-warning':'tag-ok'}">${over ? '▲ $'+Math.abs(rem).toFixed(0)+' over' : '$'+rem.toFixed(0)+' left'}</span></div>
+            </div>
+            <div class="cat-progress"><div class="cat-progress-fill ${over?'over':warn?'warning':''}" style="width:${p}%"></div></div>
+          </div>`;
+      });
     });
-
-    html += `<div class="section-title">Fixed & Auto</div><div class="fixed-grid">`;
-    FIXED_CATS.forEach(c => {
-      html += `<div class="fixed-item"><div class="fi-label">${c.label}</div><div class="fi-amount">$${c.amount.toLocaleString()}</div></div>`;
-    });
-    html += `</div>`;
 
     html += `<div class="section-title">Recent Expenses</div>`;
     if (expenses.length === 0) {
       html += `<div class="empty-state">No expenses logged yet this month.<br>Tap + to add one.</div>`;
     } else {
-      expenses.slice(0, 30).forEach(e => {
-        const cat = BUDGET_CATS.find(c => c.id === e.category);
+      expenses.slice(0, 40).forEach(e => {
+        const cat = CATEGORIES.find(c => c.id === e.category);
         html += `
           <div class="expense-item">
             <div>
               <div class="exp-cat">${cat ? cat.label : e.category}</div>
               ${e.note ? `<div class="exp-note">${e.note}</div>` : ''}
-              <div class="exp-who">${e.who === 'him' ? 'Neria' : 'Haley'}</div>
+              <div class="exp-who">${e.who === 'neria' ? 'Neria' : 'Haley'}</div>
             </div>
             <div>
               <div class="exp-amount">$${e.amount.toFixed(2)}</div>
