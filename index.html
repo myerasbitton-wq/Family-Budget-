@@ -12,326 +12,461 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0f172a; --surface: #1e293b; --surface2: #273548;
-      --accent: #38bdf8; --danger: #f87171; --warning: #fbbf24;
-      --success: #34d399; --text: #f1f5f9; --text2: #94a3b8; --border: #334155;
+      --bg: #0a0f1e; --surface: #141b2d; --surface2: #1c2539; --surface3: #243048;
+      --accent: #6366f1; --accent2: #818cf8; --success: #10b981; --danger: #ef4444;
+      --warning: #f59e0b; --text: #f1f5f9; --text2: #94a3b8; --text3: #64748b;
+      --border: #1e293b; --border2: #2d3f5a;
     }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
-    header { background: var(--surface); padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
-    header h1 { font-size: 18px; font-weight: 700; }
-    header .month { color: var(--text2); font-size: 13px; margin-top: 2px; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 100px; }
+
+    header { background: var(--surface); padding: 14px 20px 12px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center; }
+    .header-left h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+    .header-left .sub { font-size: 12px; color: var(--text3); margin-top: 1px; }
+    .live-dot { font-size: 11px; color: var(--success); display: flex; align-items: center; gap: 5px; }
+    .live-dot::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--success); display: inline-block; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    .month-nav { display: flex; align-items: center; gap: 0; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 20px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+    .month-nav::-webkit-scrollbar { display: none; }
+    .month-tab { padding: 10px 14px; font-size: 13px; color: var(--text3); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; flex-shrink: 0; }
+    .month-tab.active { color: var(--accent2); border-bottom-color: var(--accent2); font-weight: 600; }
+
     .container { max-width: 480px; margin: 0 auto; padding: 16px; }
 
-    .summary-card { background: linear-gradient(135deg, #1e40af, #312e81); border-radius: 16px; padding: 20px; margin-bottom: 20px; }
-    .summary-card .label { font-size: 12px; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 1px; }
-    .remaining-amount { font-size: 42px; font-weight: 700; margin: 6px 0 2px; line-height: 1; }
-    .remaining-amount.danger { color: var(--danger); }
-    .summary-card .sub { font-size: 13px; color: rgba(255,255,255,0.75); }
-    .summary-meta { display: flex; justify-content: space-between; margin-top: 14px; }
-    .summary-meta-item .sm-label { font-size: 11px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.6px; }
-    .summary-meta-item .sm-val { font-size: 16px; font-weight: 600; margin-top: 2px; }
-    .progress-bar { background: rgba(255,255,255,0.2); border-radius: 99px; height: 8px; margin-top: 14px; overflow: hidden; }
-    .progress-bar-fill { height: 100%; border-radius: 99px; background: white; transition: width 0.4s; }
-    .progress-bar-fill.danger { background: var(--danger); }
+    .hero { background: var(--surface); border-radius: 20px; padding: 22px 20px 18px; margin-bottom: 16px; border: 1px solid var(--border2); position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; top: -40px; right: -40px; width: 160px; height: 160px; border-radius: 50%; background: rgba(99,102,241,0.08); }
+    .hero-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+    .hero-amount { font-size: 48px; font-weight: 700; letter-spacing: -2px; line-height: 1; margin: 6px 0 4px; }
+    .hero-amount.over { color: var(--danger); }
+    .hero-amount.healthy { color: var(--text); }
+    .hero-sub { font-size: 13px; color: var(--text2); }
+    .hero-bar { background: var(--surface2); border-radius: 99px; height: 4px; margin-top: 16px; overflow: hidden; }
+    .hero-bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.5s ease; }
+    .hero-bar-fill.over { background: var(--danger); }
+    .hero-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; margin-top: 16px; }
+    .hero-stat { text-align: center; }
+    .hero-stat + .hero-stat { border-left: 1px solid var(--border2); }
+    .hero-stat .hs-label { font-size: 11px; color: var(--text3); }
+    .hero-stat .hs-val { font-size: 17px; font-weight: 600; margin-top: 2px; }
+    .hero-stat .hs-val.green { color: var(--success); }
+    .hero-stat .hs-val.red { color: var(--danger); }
 
-    .section-title { font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.8px; margin: 22px 0 10px; }
-    .category-card { background: var(--surface); border-radius: 12px; padding: 14px 16px; margin-bottom: 8px; border: 1px solid var(--border); }
-    .category-card.over { border-color: var(--danger); }
-    .category-card.warning { border-color: var(--warning); }
-    .category-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; }
-    .category-name { font-size: 15px; font-weight: 500; }
-    .category-amounts { font-size: 13px; color: var(--text2); white-space: nowrap; }
-    .tag-over { color: var(--danger); font-weight: 600; }
-    .tag-ok { color: var(--success); }
-    .tag-warning { color: var(--warning); }
-    .cat-progress { background: var(--surface2); border-radius: 99px; height: 5px; overflow: hidden; }
-    .cat-progress-fill { height: 100%; border-radius: 99px; background: var(--accent); transition: width 0.3s; }
-    .cat-progress-fill.over { background: var(--danger); }
-    .cat-progress-fill.warning { background: var(--warning); }
+    .person-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .person-card { background: var(--surface); border: 1px solid var(--border2); border-radius: 14px; padding: 14px; }
+    .person-card .pc-name { font-size: 12px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; }
+    .person-card .pc-amount { font-size: 22px; font-weight: 700; margin: 4px 0 1px; }
+    .person-card .pc-sub { font-size: 12px; color: var(--text3); }
+    .person-card.neria .pc-amount { color: #a78bfa; }
+    .person-card.haley .pc-amount { color: #f472b6; }
 
-    .expense-item { background: var(--surface); border-radius: 10px; padding: 12px 14px; margin-bottom: 6px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-    .exp-cat { font-size: 13px; color: var(--accent); font-weight: 500; }
-    .exp-note { font-size: 12px; color: var(--text2); margin-top: 1px; }
-    .exp-who { font-size: 11px; color: var(--text2); margin-top: 2px; }
+    .section-title { font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin: 20px 0 10px; }
+
+    .cat-card { background: var(--surface); border-radius: 12px; padding: 13px 15px; margin-bottom: 7px; border: 1px solid var(--border); transition: border-color 0.2s; }
+    .cat-card.over { border-color: rgba(239,68,68,0.5); }
+    .cat-card.warn { border-color: rgba(245,158,11,0.5); }
+    .cat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; }
+    .cat-name { font-size: 14px; font-weight: 500; }
+    .cat-right { font-size: 13px; color: var(--text3); text-align: right; }
+    .cat-spent { font-weight: 600; color: var(--text2); }
+    .cat-rem { font-size: 12px; margin-top: 1px; }
+    .cat-rem.ok { color: var(--success); }
+    .cat-rem.warn { color: var(--warning); }
+    .cat-rem.over { color: var(--danger); }
+    .cat-bar { background: var(--surface2); border-radius: 99px; height: 3px; overflow: hidden; }
+    .cat-bar-fill { height: 100%; border-radius: 99px; background: var(--accent); transition: width 0.4s; }
+    .cat-bar-fill.warn { background: var(--warning); }
+    .cat-bar-fill.over { background: var(--danger); }
+
+    .alert-box { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 10px 14px; font-size: 13px; color: var(--danger); margin-bottom: 8px; }
+
+    .exp-list { }
+    .exp-item { background: var(--surface); border-radius: 11px; padding: 12px 14px; margin-bottom: 6px; border: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+    .exp-avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+    .exp-avatar.neria { background: rgba(167,139,250,0.15); color: #a78bfa; }
+    .exp-avatar.haley { background: rgba(244,114,182,0.15); color: #f472b6; }
+    .exp-body { flex: 1; min-width: 0; }
+    .exp-cat-label { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .exp-note { font-size: 12px; color: var(--text3); margin-top: 1px; }
+    .exp-date { font-size: 11px; color: var(--text3); margin-top: 1px; }
+    .exp-right { text-align: right; flex-shrink: 0; }
     .exp-amount { font-size: 16px; font-weight: 600; }
-    .exp-date { font-size: 11px; color: var(--text2); text-align: right; margin-top: 2px; }
+    .exp-actions { display: flex; gap: 6px; margin-top: 4px; justify-content: flex-end; }
+    .exp-btn { font-size: 11px; padding: 2px 8px; border-radius: 6px; border: 1px solid var(--border2); background: none; color: var(--text3); cursor: pointer; }
+    .exp-btn.del { border-color: rgba(239,68,68,0.3); color: var(--danger); }
+    .exp-btn:active { opacity: 0.7; }
 
-    .alert-banner { background: rgba(248,113,113,0.12); border: 1px solid var(--danger); border-radius: 10px; padding: 10px 14px; font-size: 13px; color: var(--danger); margin-bottom: 8px; }
+    .empty { text-align: center; padding: 32px 20px; color: var(--text3); font-size: 14px; line-height: 1.6; }
 
-    .fab { position: fixed; bottom: 24px; right: 24px; width: 58px; height: 58px; border-radius: 50%; background: var(--accent); color: #0f172a; font-size: 30px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(56,189,248,0.4); z-index: 20; transition: transform 0.1s; }
-    .fab:active { transform: scale(0.93); }
+    .fab { position: fixed; bottom: 28px; right: 20px; height: 54px; padding: 0 22px; border-radius: 27px; background: var(--accent); color: white; font-size: 15px; font-weight: 600; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 8px 24px rgba(99,102,241,0.4); z-index: 20; letter-spacing: 0.2px; }
+    .fab:active { transform: scale(0.96); }
 
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 30; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
-    .modal-overlay.open { opacity: 1; pointer-events: all; }
-    .modal { background: var(--surface); border-radius: 20px 20px 0 0; padding: 24px 20px 44px; width: 100%; max-width: 480px; margin: 0 auto; transform: translateY(100%); transition: transform 0.25s; position: relative; }
-    .modal-overlay.open .modal { transform: translateY(0); }
-    .modal h2 { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
-    .close-btn { position: absolute; top: 20px; right: 20px; background: none; border: none; color: var(--text2); font-size: 22px; cursor: pointer; }
-    .form-group { margin-bottom: 14px; }
-    .form-group label { display: block; font-size: 13px; color: var(--text2); margin-bottom: 6px; }
-    .form-group select, .form-group input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; color: var(--text); font-size: 16px; outline: none; appearance: none; }
-    .form-group select:focus, .form-group input:focus { border-color: var(--accent); }
-    .who-toggle { display: flex; gap: 8px; }
-    .who-btn { flex: 1; padding: 11px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface2); color: var(--text2); font-size: 14px; cursor: pointer; text-align: center; transition: all 0.15s; }
-    .who-btn.active { border-color: var(--accent); background: rgba(56,189,248,0.12); color: var(--accent); font-weight: 600; }
-    .submit-btn { width: 100%; padding: 14px; border-radius: 12px; background: var(--accent); color: #0f172a; font-size: 16px; font-weight: 700; border: none; cursor: pointer; margin-top: 6px; }
-    .submit-btn:active { opacity: 0.85; }
-    .empty-state { text-align: center; padding: 24px; color: var(--text2); font-size: 14px; }
-    .loading { text-align: center; padding: 48px; color: var(--text2); }
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 30; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    .overlay.open { opacity: 1; pointer-events: all; }
+    .sheet { background: var(--surface); border-radius: 22px 22px 0 0; padding: 24px 20px 50px; width: 100%; max-width: 480px; margin: 0 auto; transform: translateY(100%); transition: transform 0.28s cubic-bezier(0.32,0.72,0,1); }
+    .overlay.open .sheet { transform: translateY(0); }
+    .sheet-handle { width: 36px; height: 4px; border-radius: 99px; background: var(--surface3); margin: 0 auto 20px; }
+    .sheet h2 { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+
+    .who-row { display: flex; gap: 8px; }
+    .who-btn { flex: 1; padding: 11px; border-radius: 12px; border: 1px solid var(--border2); background: var(--surface2); color: var(--text3); font-size: 14px; font-weight: 500; cursor: pointer; text-align: center; transition: all 0.15s; }
+    .who-btn.active.neria { border-color: #a78bfa; background: rgba(167,139,250,0.12); color: #a78bfa; }
+    .who-btn.active.haley { border-color: #f472b6; background: rgba(244,114,182,0.12); color: #f472b6; }
+
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 12px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 7px; }
+    .field select, .field input { width: 100%; background: var(--surface2); border: 1px solid var(--border2); border-radius: 12px; padding: 13px 15px; color: var(--text); font-size: 16px; outline: none; appearance: none; }
+    .field select:focus, .field input:focus { border-color: var(--accent); }
+    .field input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    .save-btn { width: 100%; padding: 15px; border-radius: 14px; background: var(--accent); color: white; font-size: 16px; font-weight: 600; border: none; cursor: pointer; margin-top: 4px; letter-spacing: 0.2px; }
+    .save-btn:active { opacity: 0.85; }
+
+    .confirm-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 40; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.15s; padding: 20px; }
+    .confirm-overlay.open { opacity: 1; pointer-events: all; }
+    .confirm-box { background: var(--surface); border-radius: 18px; padding: 24px; width: 100%; max-width: 320px; text-align: center; }
+    .confirm-box h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .confirm-box p { font-size: 14px; color: var(--text2); margin-bottom: 20px; line-height: 1.5; }
+    .confirm-btns { display: flex; gap: 10px; }
+    .confirm-btns button { flex: 1; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; }
+    .btn-cancel { background: var(--surface2); color: var(--text2); }
+    .btn-delete { background: var(--danger); color: white; }
+
+    .loading { text-align: center; padding: 60px 20px; color: var(--text3); font-size: 14px; }
   </style>
 </head>
 <body>
 
 <header>
-  <div>
-    <h1>💰 Family Budget</h1>
-    <div class="month" id="currentMonth"></div>
+  <div class="header-left">
+    <h1>Family Budget</h1>
+    <div class="sub" id="headerSub">Loading...</div>
   </div>
-  <div id="syncStatus" style="font-size:12px;color:var(--success)">● Live</div>
+  <div class="live-dot" id="liveStatus">Live</div>
 </header>
 
+<div class="month-nav" id="monthNav"></div>
+
 <div class="container">
-  <div id="app"><div class="loading">Loading...</div></div>
+  <div id="app"><div class="loading">Loading your budget...</div></div>
 </div>
 
-<button class="fab" onclick="openModal()">+</button>
+<button class="fab" onclick="openSheet()">＋ Log expense</button>
 
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal">
-    <button class="close-btn" onclick="closeModal()">✕</button>
-    <h2>Log Expense</h2>
-    <div class="form-group">
+<div class="overlay" id="sheetOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2 id="sheetTitle">Log Expense</h2>
+    <div class="field">
       <label>Who's logging?</label>
-      <div class="who-toggle">
-        <div class="who-btn active" id="whoNeria" onclick="setWho('neria')">Neria</div>
-        <div class="who-btn" id="whoHaley" onclick="setWho('haley')">Haley</div>
+      <div class="who-row">
+        <div class="who-btn neria active" id="whoNeria" onclick="setWho('neria')">Neria</div>
+        <div class="who-btn haley" id="whoHaley" onclick="setWho('haley')">Haley</div>
       </div>
     </div>
-    <div class="form-group">
+    <div class="field">
       <label>Category</label>
-      <select id="categorySelect"></select>
+      <select id="catSelect"></select>
     </div>
-    <div class="form-group">
+    <div class="field">
       <label>Amount ($)</label>
-      <input type="number" id="amountInput" placeholder="0.00" min="0" step="0.01" />
+      <input type="number" id="amtInput" placeholder="0.00" min="0" step="0.01" inputmode="decimal" />
     </div>
-    <div class="form-group">
+    <div class="field">
       <label>Note (optional)</label>
       <input type="text" id="noteInput" placeholder="e.g. Whole Foods run" />
     </div>
-    <button class="submit-btn" onclick="submitExpense()">Add Expense</button>
+    <button class="save-btn" id="saveBtn" onclick="saveExpense()">Add Expense</button>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <h3>Delete expense?</h3>
+    <p id="confirmText">This cannot be undone.</p>
+    <div class="confirm-btns">
+      <button class="btn-cancel" onclick="closeConfirm()">Cancel</button>
+      <button class="btn-delete" onclick="confirmDelete()">Delete</button>
+    </div>
   </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyAvkUKSr60nAv7mfpLLGG0UA-Sdzx_nl_4",
-    authDomain: "family-budget-cf7c6.firebaseapp.com",
-    projectId: "family-budget-cf7c6",
-    storageBucket: "family-budget-cf7c6.firebasestorage.app",
-    messagingSenderId: "521335492268",
-    appId: "1:521335492268:web:1ad9aaadc0a869e339d909"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+firebase.initializeApp({
+  apiKey: "AIzaSyAvkUKSr60nAv7mfpLLGG0UA-Sdzx_nl_4",
+  authDomain: "family-budget-cf7c6.firebaseapp.com",
+  projectId: "family-budget-cf7c6",
+  storageBucket: "family-budget-cf7c6.firebasestorage.app",
+  messagingSenderId: "521335492268",
+  appId: "1:521335492268:web:1ad9aaadc0a869e339d909"
+});
+const db = firebase.firestore();
 
-  const TOTAL_BUDGET = 10000;
+const BUDGET = 10000;
+const CATS = [
+  { id:'haley_401k',  label:"Haley's Roth 401K", budget:2042, group:'Retirement' },
+  { id:'roth_iras',   label:'Both Roth IRAs',     budget:1250, group:'Retirement' },
+  { id:'rent',        label:'Rent',               budget:2200, group:'Fixed' },
+  { id:'electricity', label:'Electricity',        budget:175,  group:'Fixed' },
+  { id:'car_ins',     label:'Car Insurance',      budget:167,  group:'Fixed' },
+  { id:'internet',    label:'Internet',           budget:65,   group:'Fixed' },
+  { id:'groceries',   label:'Groceries',          budget:600,  group:'Variable' },
+  { id:'subscriptions',label:'Subscriptions',     budget:30,   group:'Variable' },
+  { id:'charity',     label:'Charity',            budget:200,  group:'Variable' },
+  { id:'neria_allow', label:"Neria's Allowance",  budget:1000, group:'Personal' },
+  { id:'haley_allow', label:"Haley's Allowance",  budget:1000, group:'Personal' },
+  { id:'brokerage',   label:'Brokerage',          budget:1000, group:'Savings' },
+  { id:'vacation',    label:'Vacation Fund',      budget:271,  group:'Savings' },
+];
+const GROUPS = ['Retirement','Fixed','Variable','Personal','Savings'];
+const catMap = Object.fromEntries(CATS.map(c => [c.id, c]));
 
-  const CATEGORIES = [
-    { id: 'haley_401k',    label: "Haley's Roth 401K",  budget: 2042, group: 'retirement' },
-    { id: 'roth_iras',     label: 'Both Roth IRAs',      budget: 1250, group: 'retirement' },
-    { id: 'rent',          label: 'Rent',                budget: 2200, group: 'fixed' },
-    { id: 'groceries',     label: 'Groceries',           budget: 600,  group: 'variable' },
-    { id: 'electricity',   label: 'Electricity',         budget: 175,  group: 'fixed' },
-    { id: 'car_insurance', label: 'Car Insurance',       budget: 167,  group: 'fixed' },
-    { id: 'internet',      label: 'Internet',            budget: 65,   group: 'fixed' },
-    { id: 'subscriptions', label: 'Subscriptions',       budget: 30,   group: 'variable' },
-    { id: 'charity',       label: 'Charity',             budget: 200,  group: 'variable' },
-    { id: 'neria_allow',   label: "Neria's Allowance",   budget: 1000, group: 'personal' },
-    { id: 'haley_allow',   label: "Haley's Allowance",   budget: 1000, group: 'personal' },
-    { id: 'brokerage',     label: 'Brokerage',           budget: 1000, group: 'savings' },
-    { id: 'vacation',      label: 'Vacation Fund',       budget: 271,  group: 'savings' },
-  ];
-
-  const GROUPS = [
-    { id: 'retirement', label: 'Retirement' },
-    { id: 'fixed',      label: 'Fixed Expenses' },
-    { id: 'variable',   label: 'Variable Expenses' },
-    { id: 'personal',   label: 'Personal Spending' },
-    { id: 'savings',    label: 'Savings' },
-  ];
-
-  // Populate category dropdown
-  const sel = document.getElementById('categorySelect');
-  GROUPS.forEach(g => {
-    const cats = CATEGORIES.filter(c => c.group === g.id);
-    if (!cats.length) return;
-    const og = document.createElement('optgroup');
-    og.label = g.label;
-    cats.forEach(c => {
-      const o = document.createElement('option');
-      o.value = c.id;
-      o.textContent = c.label;
-      og.appendChild(o);
-    });
-    sel.appendChild(og);
+// Build category dropdown
+const sel = document.getElementById('catSelect');
+GROUPS.forEach(g => {
+  const cats = CATS.filter(c => c.group === g);
+  const og = document.createElement('optgroup');
+  og.label = g;
+  cats.forEach(c => {
+    const o = document.createElement('option');
+    o.value = c.id; o.textContent = c.label;
+    og.appendChild(o);
   });
+  sel.appendChild(og);
+});
 
-  let selectedWho = 'neria';
-  let expenses = [];
+// Month navigation
+const now = new Date();
+function getMonthKey(y, m) { return `${y}-${String(m+1).padStart(2,'0')}`; }
+function monthLabel(y, m) { return new Date(y, m, 1).toLocaleDateString('en-US', {month:'long', year:'numeric'}); }
+function monthShort(y, m) { return new Date(y, m, 1).toLocaleDateString('en-US', {month:'short', year:'2-digit'}); }
 
-  function getMonthKey() {
-    const n = new Date();
-    return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`;
-  }
+let months = [];
+for (let i = 5; i >= 0; i--) {
+  const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+  months.push({ y: d.getFullYear(), m: d.getMonth(), key: getMonthKey(d.getFullYear(), d.getMonth()) });
+}
 
-  function formatMonthLabel() {
-    return new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-  }
+let activeMonthIdx = months.length - 1;
+let expenses = [];
+let unsubscribe = null;
+let who = 'neria';
+let editId = null;
+let deleteId = null;
 
-  function formatDate(ts) {
-    if (!ts) return '';
-    const d = ts.toDate ? ts.toDate() : new Date(ts);
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  }
+const nav = document.getElementById('monthNav');
+months.forEach((mo, i) => {
+  const tab = document.createElement('div');
+  tab.className = 'month-tab' + (i === activeMonthIdx ? ' active' : '');
+  tab.textContent = monthShort(mo.y, mo.m);
+  tab.onclick = () => switchMonth(i);
+  nav.appendChild(tab);
+});
+nav.scrollLeft = 9999;
 
-  document.getElementById('currentMonth').textContent = formatMonthLabel();
+function switchMonth(idx) {
+  activeMonthIdx = idx;
+  document.querySelectorAll('.month-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+  document.getElementById('headerSub').textContent = monthLabel(months[idx].y, months[idx].m);
+  loadMonth();
+}
 
-  function setWho(who) {
-    selectedWho = who;
-    document.getElementById('whoNeria').classList.toggle('active', who === 'neria');
-    document.getElementById('whoHaley').classList.toggle('active', who === 'haley');
-  }
-
-  function openModal() {
-    document.getElementById('modalOverlay').classList.add('open');
-    setTimeout(() => document.getElementById('amountInput').focus(), 300);
-  }
-
-  function closeModal() {
-    document.getElementById('modalOverlay').classList.remove('open');
-    document.getElementById('amountInput').value = '';
-    document.getElementById('noteInput').value = '';
-  }
-
-  document.getElementById('modalOverlay').addEventListener('click', function(e) {
-    if (e.target === this) closeModal();
-  });
-
-  async function submitExpense() {
-    const amount = parseFloat(document.getElementById('amountInput').value);
-    const category = document.getElementById('categorySelect').value;
-    const note = document.getElementById('noteInput').value.trim();
-    if (!amount || amount <= 0) { alert('Enter a valid amount.'); return; }
-    try {
-      await db.collection('expenses').add({
-        amount, category, note,
-        who: selectedWho,
-        monthKey: getMonthKey(),
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      });
-      closeModal();
-    } catch (err) {
-      alert('Could not save. Check your connection.');
-      console.error(err);
-    }
-  }
-
-  function render() {
-    const spent = {};
-    CATEGORIES.forEach(c => spent[c.id] = 0);
-    expenses.forEach(e => { if (spent[e.category] !== undefined) spent[e.category] += e.amount; });
-
-    const totalSpent = Object.values(spent).reduce((a,b) => a+b, 0);
-    const remaining = TOTAL_BUDGET - totalSpent;
-    const isOver = totalSpent > TOTAL_BUDGET;
-    const pct = Math.min((totalSpent / TOTAL_BUDGET) * 100, 100);
-    const alerts = CATEGORIES.filter(c => spent[c.id] > c.budget);
-
-    let html = `
-      <div class="summary-card">
-        <div class="label">Remaining This Month</div>
-        <div class="remaining-amount ${isOver ? 'danger' : ''}">$${Math.abs(remaining).toLocaleString('en-US', {minimumFractionDigits:0})}</div>
-        <div class="sub">${isOver ? '⚠️ Over budget by $'+Math.abs(remaining).toFixed(0) : 'of $10,000 left to allocate'}</div>
-        <div class="summary-meta">
-          <div class="summary-meta-item">
-            <div class="sm-label">Spent</div>
-            <div class="sm-val">$${totalSpent.toLocaleString('en-US', {minimumFractionDigits:0})}</div>
-          </div>
-          <div class="summary-meta-item" style="text-align:right">
-            <div class="sm-label">Budget</div>
-            <div class="sm-val">$10,000</div>
-          </div>
-        </div>
-        <div class="progress-bar"><div class="progress-bar-fill ${isOver?'danger':''}" style="width:${pct}%"></div></div>
-      </div>
-    `;
-
-    alerts.forEach(c => {
-      html += `<div class="alert-banner">⚠️ ${c.label} is $${(spent[c.id]-c.budget).toFixed(0)} over budget</div>`;
-    });
-
-    GROUPS.forEach(g => {
-      const cats = CATEGORIES.filter(c => c.group === g.id);
-      html += `<div class="section-title">${g.label}</div>`;
-      cats.forEach(c => {
-        const s = spent[c.id];
-        const p = Math.min((s / c.budget) * 100, 100);
-        const over = s > c.budget;
-        const warn = !over && p >= 80;
-        const rem = c.budget - s;
-        html += `
-          <div class="category-card ${over?'over':warn?'warning':''}">
-            <div class="category-top">
-              <div class="category-name">${c.label}</div>
-              <div class="category-amounts">$${s.toFixed(0)} / $${c.budget.toLocaleString()} &nbsp;<span class="${over?'tag-over':warn?'tag-warning':'tag-ok'}">${over ? '▲ $'+Math.abs(rem).toFixed(0)+' over' : '$'+rem.toFixed(0)+' left'}</span></div>
-            </div>
-            <div class="cat-progress"><div class="cat-progress-fill ${over?'over':warn?'warning':''}" style="width:${p}%"></div></div>
-          </div>`;
-      });
-    });
-
-    html += `<div class="section-title">Recent Expenses</div>`;
-    if (expenses.length === 0) {
-      html += `<div class="empty-state">No expenses logged yet this month.<br>Tap + to add one.</div>`;
-    } else {
-      expenses.slice(0, 40).forEach(e => {
-        const cat = CATEGORIES.find(c => c.id === e.category);
-        html += `
-          <div class="expense-item">
-            <div>
-              <div class="exp-cat">${cat ? cat.label : e.category}</div>
-              ${e.note ? `<div class="exp-note">${e.note}</div>` : ''}
-              <div class="exp-who">${e.who === 'neria' ? 'Neria' : 'Haley'}</div>
-            </div>
-            <div>
-              <div class="exp-amount">$${e.amount.toFixed(2)}</div>
-              <div class="exp-date">${formatDate(e.timestamp)}</div>
-            </div>
-          </div>`;
-      });
-    }
-
-    document.getElementById('app').innerHTML = html;
-  }
-
-  db.collection('expenses')
-    .where('monthKey', '==', getMonthKey())
+function loadMonth() {
+  if (unsubscribe) unsubscribe();
+  document.getElementById('app').innerHTML = '<div class="loading">Loading...</div>';
+  const key = months[activeMonthIdx].key;
+  unsubscribe = db.collection('expenses')
+    .where('monthKey', '==', key)
     .orderBy('timestamp', 'desc')
     .onSnapshot(snap => {
       expenses = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       render();
     }, err => {
       console.error(err);
-      document.getElementById('syncStatus').textContent = '⚠ Offline';
-      document.getElementById('syncStatus').style.color = 'var(--warning)';
+      document.getElementById('liveStatus').textContent = 'Offline';
+      document.getElementById('liveStatus').style.color = 'var(--warning)';
     });
+}
 
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').catch(console.error);
+function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
+function fmtDec(n) { return '$' + n.toFixed(2); }
+function fmtDate(ts) {
+  if (!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+}
+
+function render() {
+  const spent = {};
+  CATS.forEach(c => spent[c.id] = 0);
+  expenses.forEach(e => { if (spent[e.category] !== undefined) spent[e.category] += e.amount; });
+  const totalSpent = Object.values(spent).reduce((a,b)=>a+b,0);
+  const remaining = BUDGET - totalSpent;
+  const isOver = totalSpent > BUDGET;
+  const pct = Math.min((totalSpent / BUDGET) * 100, 100);
+
+  const neriaSpent = expenses.filter(e => e.who === 'neria').reduce((a,e)=>a+e.amount,0);
+  const haleySpent = expenses.filter(e => e.who === 'haley').reduce((a,e)=>a+e.amount,0);
+
+  const overCats = CATS.filter(c => spent[c.id] > c.budget);
+
+  let html = '';
+
+  // Hero
+  html += `<div class="hero">
+    <div class="hero-label">Remaining this month</div>
+    <div class="hero-amount ${isOver?'over':'healthy'}">${fmt(Math.abs(remaining))}</div>
+    <div class="hero-sub">${isOver ? '⚠ Over budget by '+fmt(Math.abs(remaining)) : 'of '+fmt(BUDGET)+' budget'}</div>
+    <div class="hero-bar"><div class="hero-bar-fill ${isOver?'over':''}" style="width:${pct}%"></div></div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hs-label">Spent</div><div class="hs-val">${fmt(totalSpent)}</div></div>
+      <div class="hero-stat"><div class="hs-label">Budget</div><div class="hs-val">${fmt(BUDGET)}</div></div>
+      <div class="hero-stat"><div class="hs-label">Left</div><div class="hs-val ${isOver?'red':'green'}">${fmt(remaining)}</div></div>
+    </div>
+  </div>`;
+
+  // Per-person
+  html += `<div class="person-row">
+    <div class="person-card neria">
+      <div class="pc-name">Neria</div>
+      <div class="pc-amount">${fmt(neriaSpent)}</div>
+      <div class="pc-sub">logged this month</div>
+    </div>
+    <div class="person-card haley">
+      <div class="pc-name">Haley</div>
+      <div class="pc-amount">${fmt(haleySpent)}</div>
+      <div class="pc-sub">logged this month</div>
+    </div>
+  </div>`;
+
+  // Alerts
+  overCats.forEach(c => {
+    html += `<div class="alert-box">⚠ ${c.label} is ${fmt(spent[c.id]-c.budget)} over budget</div>`;
+  });
+
+  // Categories by group
+  GROUPS.forEach(g => {
+    const cats = CATS.filter(c => c.group === g);
+    html += `<div class="section-title">${g}</div>`;
+    cats.forEach(c => {
+      const s = spent[c.id];
+      const p = Math.min((s/c.budget)*100, 100);
+      const over = s > c.budget;
+      const warn = !over && p >= 75;
+      const rem = c.budget - s;
+      html += `<div class="cat-card ${over?'over':warn?'warn':''}">
+        <div class="cat-row">
+          <div class="cat-name">${c.label}</div>
+          <div class="cat-right">
+            <div class="cat-spent">${fmt(s)} <span style="color:var(--text3);font-weight:400">/ ${fmt(c.budget)}</span></div>
+            <div class="cat-rem ${over?'over':warn?'warn':'ok'}">${over ? fmt(Math.abs(rem))+' over' : fmt(rem)+' left'}</div>
+          </div>
+        </div>
+        <div class="cat-bar"><div class="cat-bar-fill ${over?'over':warn?'warn':''}" style="width:${p}%"></div></div>
+      </div>`;
+    });
+  });
+
+  // Expense log
+  html += `<div class="section-title">All expenses</div>`;
+  if (expenses.length === 0) {
+    html += `<div class="empty">Nothing logged yet.<br>Tap the button below to add your first expense.</div>`;
+  } else {
+    html += `<div class="exp-list">`;
+    expenses.forEach(e => {
+      const cat = catMap[e.category];
+      const initials = e.who === 'neria' ? 'N' : 'H';
+      html += `<div class="exp-item">
+        <div class="exp-avatar ${e.who}">${initials}</div>
+        <div class="exp-body">
+          <div class="exp-cat-label">${cat ? cat.label : e.category}</div>
+          ${e.note ? `<div class="exp-note">${e.note}</div>` : ''}
+          <div class="exp-date">${fmtDate(e.timestamp)} · ${e.who === 'neria' ? 'Neria' : 'Haley'}</div>
+        </div>
+        <div class="exp-right">
+          <div class="exp-amount">${fmtDec(e.amount)}</div>
+          <div class="exp-actions">
+            <button class="exp-btn" onclick="startEdit('${e.id}')">Edit</button>
+            <button class="exp-btn del" onclick="startDelete('${e.id}', '${cat ? cat.label : ''}', ${e.amount})">Del</button>
+          </div>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
   }
+
+  document.getElementById('app').innerHTML = html;
+}
+
+// Sheet
+function openSheet() {
+  editId = null;
+  document.getElementById('sheetTitle').textContent = 'Log Expense';
+  document.getElementById('amtInput').value = '';
+  document.getElementById('noteInput').value = '';
+  document.getElementById('catSelect').selectedIndex = 0;
+  document.getElementById('saveBtn').textContent = 'Add Expense';
+  document.getElementById('sheetOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('amtInput').focus(), 300);
+}
+
+function startEdit(id) {
+  const e = expenses.find(x => x.id === id);
+  if (!e) return;
+  editId = id;
+  setWho(e.who);
+  document.getElementById('catSelect').value = e.category;
+  document.getElementById('amtInput').value = e.amount;
+  document.getElementById('noteInput').value = e.note || '';
+  document.getElementById('sheetTitle').textContent = 'Edit Expense';
+  document.getElementById('saveBtn').textContent = 'Save Changes';
+  document.getElementById('sheetOverlay').classList.add('open');
+}
+
+function closeSheet() { document.getElementById('sheetOverlay').classList.remove('open'); editId = null; }
+document.getElementById('sheetOverlay').addEventListener('click', e => { if (e.target === document.getElementById('sheetOverlay')) closeSheet(); });
+
+function setWho(w) {
+  who = w;
+  document.getElementById('whoNeria').classList.toggle('active', w === 'neria');
+  document.getElementById('whoHaley').classList.toggle('active', w === 'haley');
+}
+
+async function saveExpense() {
+  const amount = parseFloat(document.getElementById('amtInput').value);
+  const category = document.getElementById('catSelect').value;
+  const note = document.getElementById('noteInput').value.trim();
+  if (!amount || amount <= 0) { alert('Enter a valid amount.'); return; }
+  const key = months[activeMonthIdx].key;
+  try {
+    if (editId) {
+      await db.collection('expenses').doc(editId).update({ amount, category, note, who });
+    } else {
+      await db.collection('expenses').add({ amount, category, note, who, monthKey: key, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+    }
+    closeSheet();
+  } catch (err) { alert('Could not save. Check connection.'); console.error(err); }
+}
+
+// Delete
+function startDelete(id, label, amount) {
+  deleteId = id;
+  document.getElementById('confirmText').textContent = `Delete ${label} for $${amount.toFixed(2)}?`;
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('open'); deleteId = null; }
+async function confirmDelete() {
+  if (!deleteId) return;
+  try { await db.collection('expenses').doc(deleteId).delete(); closeConfirm(); }
+  catch (err) { alert('Could not delete.'); console.error(err); }
+}
+
+// Init
+document.getElementById('headerSub').textContent = monthLabel(months[activeMonthIdx].y, months[activeMonthIdx].m);
+loadMonth();
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(console.error);
 </script>
 </body>
 </html>
