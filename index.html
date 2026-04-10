@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Family Budget</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Budget" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f172a; --surface: #1e293b; --surface2: #273548;
+      --accent: #38bdf8; --danger: #f87171; --warning: #fbbf24;
+      --success: #34d399; --text: #f1f5f9; --text2: #94a3b8; --border: #334155;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
+    header { background: var(--surface); padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+    header h1 { font-size: 18px; font-weight: 700; }
+    header .month { color: var(--text2); font-size: 13px; margin-top: 2px; }
+    .container { max-width: 480px; margin: 0 auto; padding: 16px; }
+    .summary-card { background: linear-gradient(135deg, #1e40af, #312e81); border-radius: 16px; padding: 20px; margin-bottom: 20px; }
+    .summary-card .label { font-size: 12px; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 1px; }
+    .summary-card .amount { font-size: 36px; font-weight: 700; margin: 4px 0; }
+    .summary-card .sub { font-size: 13px; color: rgba(255,255,255,0.85); }
+    .progress-bar { background: rgba(255,255,255,0.2); border-radius: 99px; height: 8px; margin-top: 12px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; border-radius: 99px; background: white; transition: width 0.3s; }
+    .section-title { font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.8px; margin: 20px 0 10px; }
+    .category-card { background: var(--surface); border-radius: 12px; padding: 14px 16px; margin-bottom: 8px; border: 1px solid var(--border); }
+    .category-card.over { border-color: var(--danger); }
+    .category-card.warning { border-color: var(--warning); }
+    .category-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 4px; }
+    .category-name { font-size: 15px; font-weight: 500; }
+    .category-amounts { font-size: 13px; color: var(--text2); }
+    .tag-over { color: var(--danger); font-weight: 600; }
+    .tag-ok { color: var(--success); }
+    .tag-warning { color: var(--warning); }
+    .cat-progress { background: var(--surface2); border-radius: 99px; height: 5px; overflow: hidden; }
+    .cat-progress-fill { height: 100%; border-radius: 99px; background: var(--accent); transition: width 0.3s; }
+    .cat-progress-fill.over { background: var(--danger); }
+    .cat-progress-fill.warning { background: var(--warning); }
+    .fixed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .fixed-item { background: var(--surface); border-radius: 10px; padding: 12px; border: 1px solid var(--border); }
+    .fixed-item .fi-label { font-size: 12px; color: var(--text2); }
+    .fixed-item .fi-amount { font-size: 16px; font-weight: 600; margin-top: 2px; }
+    .expense-item { background: var(--surface); border-radius: 10px; padding: 12px 14px; margin-bottom: 6px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .exp-cat { font-size: 13px; color: var(--accent); font-weight: 500; }
+    .exp-note { font-size: 12px; color: var(--text2); margin-top: 1px; }
+    .exp-who { font-size: 11px; color: var(--text2); margin-top: 2px; }
+    .exp-amount { font-size: 16px; font-weight: 600; }
+    .exp-date { font-size: 11px; color: var(--text2); text-align: right; margin-top: 2px; }
+    .fab { position: fixed; bottom: 24px; right: 24px; width: 58px; height: 58px; border-radius: 50%; background: var(--accent); color: #0f172a; font-size: 30px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(56,189,248,0.4); z-index: 20; transition: transform 0.1s; }
+    .fab:active { transform: scale(0.93); }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 30; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal { background: var(--surface); border-radius: 20px 20px 0 0; padding: 24px 20px 44px; width: 100%; max-width: 480px; margin: 0 auto; transform: translateY(100%); transition: transform 0.25s; position: relative; }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal h2 { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+    .close-btn { position: absolute; top: 20px; right: 20px; background: none; border: none; color: var(--text2); font-size: 22px; cursor: pointer; }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 13px; color: var(--text2); margin-bottom: 6px; }
+    .form-group select, .form-group input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; color: var(--text); font-size: 16px; outline: none; appearance: none; }
+    .form-group select:focus, .form-group input:focus { border-color: var(--accent); }
+    .who-toggle { display: flex; gap: 8px; }
+    .who-btn { flex: 1; padding: 11px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface2); color: var(--text2); font-size: 14px; cursor: pointer; text-align: center; transition: all 0.15s; }
+    .who-btn.active { border-color: var(--accent); background: rgba(56,189,248,0.12); color: var(--accent); font-weight: 600; }
+    .submit-btn { width: 100%; padding: 14px; border-radius: 12px; background: var(--accent); color: #0f172a; font-size: 16px; font-weight: 700; border: none; cursor: pointer; margin-top: 6px; }
+    .submit-btn:active { opacity: 0.85; }
+    .alert-banner { background: rgba(248,113,113,0.12); border: 1px solid var(--danger); border-radius: 10px; padding: 10px 14px; font-size: 13px; color: var(--danger); margin-bottom: 8px; }
+    .empty-state { text-align: center; padding: 24px; color: var(--text2); font-size: 14px; }
+    .loading { text-align: center; padding: 48px; color: var(--text2); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>💰 Family Budget</h1>
+    <div class="month" id="currentMonth"></div>
+  </div>
+  <div id="syncStatus" style="font-size:12px;color:var(--success)">● Live</div>
+</header>
+
+<div class="container">
+  <div id="app"><div class="loading">Loading...</div></div>
+</div>
+
+<button class="fab" onclick="openModal()">+</button>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="close-btn" onclick="closeModal()">✕</button>
+    <h2>Log Expense</h2>
+    <div class="form-group">
+      <label>Who's logging?</label>
+      <div class="who-toggle">
+        <div class="who-btn active" id="whoHim" onclick="setWho('him')">Him</div>
+        <div class="who-btn" id="whoHer" onclick="setWho('her')">Her</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Category</label>
+      <select id="categorySelect">
+        <option value="groceries">Groceries</option>
+        <option value="electricity">Electricity</option>
+        <option value="subscriptions">Subscriptions</option>
+        <option value="charity">Charity</option>
+        <option value="his_allowance">His Allowance</option>
+        <option value="her_allowance">Her Allowance</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Amount ($)</label>
+      <input type="number" id="amountInput" placeholder="0.00" min="0" step="0.01" />
+    </div>
+    <div class="form-group">
+      <label>Note (optional)</label>
+      <input type="text" id="noteInput" placeholder="e.g. Whole Foods run" />
+    </div>
+    <button class="submit-btn" onclick="submitExpense()">Add Expense</button>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAvkUKSr60nAv7mfpLLGG0UA-Sdzx_nl_4",
+    authDomain: "family-budget-cf7c6.firebaseapp.com",
+    projectId: "family-budget-cf7c6",
+    storageBucket: "family-budget-cf7c6.firebasestorage.app",
+    messagingSenderId: "521335492268",
+    appId: "1:521335492268:web:1ad9aaadc0a869e339d909"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  const BUDGET_CATS = [
+    { id: 'groceries',     label: 'Groceries',     budget: 600  },
+    { id: 'electricity',   label: 'Electricity',   budget: 175  },
+    { id: 'subscriptions', label: 'Subscriptions', budget: 30   },
+    { id: 'charity',       label: 'Charity',       budget: 200  },
+    { id: 'his_allowance', label: 'His Allowance', budget: 1000 },
+    { id: 'her_allowance', label: 'Her Allowance', budget: 1000 },
+  ];
+
+  const FIXED_CATS = [
+    { label: "Wife's Roth 401K", amount: 2042 },
+    { label: 'Both Roth IRAs',   amount: 1250 },
+    { label: 'Rent',             amount: 2200 },
+    { label: 'Car Insurance',    amount: 167  },
+    { label: 'Internet',         amount: 65   },
+    { label: 'Brokerage',        amount: 1000 },
+    { label: 'Vacation Fund',    amount: 271  },
+  ];
+
+  const TRACKABLE_TOTAL = BUDGET_CATS.reduce((s, c) => s + c.budget, 0);
+  let selectedWho = 'him';
+  let expenses = [];
+
+  function getMonthKey() {
+    const n = new Date();
+    return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`;
+  }
+
+  function formatMonthLabel() {
+    return new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  }
+
+  function formatDate(ts) {
+    if (!ts) return '';
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  document.getElementById('currentMonth').textContent = formatMonthLabel();
+
+  function setWho(who) {
+    selectedWho = who;
+    document.getElementById('whoHim').classList.toggle('active', who === 'him');
+    document.getElementById('whoHer').classList.toggle('active', who === 'her');
+  }
+
+  function openModal() {
+    document.getElementById('modalOverlay').classList.add('open');
+    setTimeout(() => document.getElementById('amountInput').focus(), 300);
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+    document.getElementById('amountInput').value = '';
+    document.getElementById('noteInput').value = '';
+  }
+
+  document.getElementById('modalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  async function submitExpense() {
+    const amount = parseFloat(document.getElementById('amountInput').value);
+    const category = document.getElementById('categorySelect').value;
+    const note = document.getElementById('noteInput').value.trim();
+    if (!amount || amount <= 0) { alert('Enter a valid amount.'); return; }
+    try {
+      await db.collection('expenses').add({
+        amount, category, note,
+        who: selectedWho,
+        monthKey: getMonthKey(),
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      closeModal();
+    } catch (err) {
+      alert('Could not save. Check your connection.');
+      console.error(err);
+    }
+  }
+
+  function render() {
+    const spent = {};
+    BUDGET_CATS.forEach(c => spent[c.id] = 0);
+    expenses.forEach(e => { if (spent[e.category] !== undefined) spent[e.category] += e.amount; });
+
+    const totalSpent = Object.values(spent).reduce((a,b) => a+b, 0);
+    const remaining = TRACKABLE_TOTAL - totalSpent;
+    const isOver = totalSpent > TRACKABLE_TOTAL;
+    const pct = Math.min((totalSpent / TRACKABLE_TOTAL) * 100, 100);
+    const alerts = BUDGET_CATS.filter(c => spent[c.id] > c.budget);
+
+    let html = `
+      <div class="summary-card">
+        <div class="label">Variable Spending — ${formatMonthLabel()}</div>
+        <div class="amount">$${totalSpent.toFixed(0)}<span style="font-size:18px;opacity:0.6"> / $${TRACKABLE_TOTAL.toLocaleString()}</span></div>
+        <div class="sub">${isOver ? '⚠️ $'+Math.abs(remaining).toFixed(0)+' over budget' : '$'+remaining.toFixed(0)+' remaining'}</div>
+        <div class="progress-bar"><div class="progress-bar-fill" style="width:${pct}%;${isOver?'background:var(--danger)':''}"></div></div>
+      </div>
+    `;
+
+    alerts.forEach(c => {
+      html += `<div class="alert-banner">⚠️ ${c.label} is $${(spent[c.id]-c.budget).toFixed(0)} over budget</div>`;
+    });
+
+    html += `<div class="section-title">Variable Categories</div>`;
+    BUDGET_CATS.forEach(c => {
+      const s = spent[c.id];
+      const p = Math.min((s / c.budget) * 100, 100);
+      const over = s > c.budget;
+      const warn = !over && p >= 80;
+      const rem = c.budget - s;
+      html += `
+        <div class="category-card ${over?'over':warn?'warning':''}">
+          <div class="category-top">
+            <div class="category-name">${c.label}</div>
+            <div class="category-amounts">$${s.toFixed(0)} / $${c.budget} &nbsp;<span class="${over?'tag-over':warn?'tag-warning':'tag-ok'}">${over?'▲ $'+Math.abs(rem).toFixed(0)+' over':'$'+rem.toFixed(0)+' left'}</span></div>
+          </div>
+          <div class="cat-progress"><div class="cat-progress-fill ${over?'over':warn?'warning':''}" style="width:${p}%"></div></div>
+        </div>`;
+    });
+
+    html += `<div class="section-title">Fixed & Auto</div><div class="fixed-grid">`;
+    FIXED_CATS.forEach(c => {
+      html += `<div class="fixed-item"><div class="fi-label">${c.label}</div><div class="fi-amount">$${c.amount.toLocaleString()}</div></div>`;
+    });
+    html += `</div>`;
+
+    html += `<div class="section-title">Recent Expenses</div>`;
+    if (expenses.length === 0) {
+      html += `<div class="empty-state">No expenses logged yet this month.<br>Tap + to add one.</div>`;
+    } else {
+      expenses.slice(0, 30).forEach(e => {
+        const cat = BUDGET_CATS.find(c => c.id === e.category);
+        html += `
+          <div class="expense-item">
+            <div>
+              <div class="exp-cat">${cat ? cat.label : e.category}</div>
+              ${e.note ? `<div class="exp-note">${e.note}</div>` : ''}
+              <div class="exp-who">${e.who === 'him' ? 'Him' : 'Her'}</div>
+            </div>
+            <div>
+              <div class="exp-amount">$${e.amount.toFixed(2)}</div>
+              <div class="exp-date">${formatDate(e.timestamp)}</div>
+            </div>
+          </div>`;
+      });
+    }
+
+    document.getElementById('app').innerHTML = html;
+  }
+
+  db.collection('expenses')
+    .where('monthKey', '==', getMonthKey())
+    .orderBy('timestamp', 'desc')
+    .onSnapshot(snap => {
+      expenses = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      render();
+    }, err => {
+      console.error(err);
+      document.getElementById('syncStatus').textContent = '⚠ Offline';
+      document.getElementById('syncStatus').style.color = 'var(--warning)';
+    });
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(console.error);
+  }
+</script>
+</body>
+</html>
